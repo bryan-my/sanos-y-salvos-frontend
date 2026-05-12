@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || '/api';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -41,10 +41,12 @@ export const authService = {
 
 export const usuarioService = {
   getLista: () => api.get('/usuarios/lista'),
+  eliminar: (id) => api.delete(`/usuarios/${id}`),
 };
 
 export const mascotaService = {
-  registrar: (mascotaData) => api.post('/mascotas/registrar', mascotaData),
+  registrar: (mascotaData) => api.post('/mascotas', mascotaData),
+  getLista: () => api.get('/mascotas/lista'),
   getByUsuario: (idUsuario) => api.get(`/mascotas/usuario/${idUsuario}`),
   getById: (id) => api.get(`/mascotas/${id}`),
 };

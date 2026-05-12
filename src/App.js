@@ -5,6 +5,8 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import MascotaDetalle from './pages/MascotaDetalle';
+import Mascotas from './pages/Mascotas';
+import RegistrarMascota from './pages/RegistrarMascota';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import './App.css';
@@ -16,6 +18,8 @@ function App() {
     <div className="App">
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/registrar-mascota" element={<RegistrarMascota />} />
+        <Route path="/mascotas" element={<Mascotas />} />
         <Route path="/mascotas/:id" element={<MascotaDetalle />} />
         <Route
           path="/login"
