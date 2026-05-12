@@ -8,7 +8,7 @@ const Register = () => {
     nombreCompleto: '',
     email: '',
     password: '',
-    rol: 'USER',
+    rol: 'DUEÑO',
     telefono: '',
     direccion: '',
   });
