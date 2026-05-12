@@ -1,17 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usuarioService, mascotaService } from '../services/api';
 import './Dashboard.css';
 
 const AdminDashboard = () => {
-  const { user, logout } = useAuth();
+  const { logout } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
-  const [mascotas, setMascotas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('usuarios');
   const [error, setError] = useState('');
   const [selectedUser, setSelectedUser] = useState(null);
   const [userMascotas, setUserMascotas] = useState([]);
+  const [deletingUserId, setDeletingUserId] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -33,11 +34,32 @@ const AdminDashboard = () => {
 
   const loadUserMascotas = async (userId) => {
     try {
+      setError('');
       const response = await mascotaService.getByUsuario(userId);
       setUserMascotas(response.data);
       setSelectedUser(usuarios.find(u => u.id === userId));
     } catch (err) {
       setError('Error al cargar mascotas del usuario');
+    }
+  };
+
+  const handleDeleteUsuario = async (usuario) => {
+    const confirmado = window.confirm(`¿Eliminar el usuario "${usuario.nombreCompleto}"?`);
+    if (!confirmado) return;
+
+    setError('');
+    setDeletingUserId(usuario.id);
+    try {
+      await usuarioService.eliminar(usuario.id);
+      setUsuarios((prev) => prev.filter((u) => u.id !== usuario.id));
+      if (selectedUser?.id === usuario.id) {
+        setSelectedUser(null);
+        setUserMascotas([]);
+      }
+    } catch (err) {
+      setError('No se pudo eliminar el usuario.');
+    } finally {
+      setDeletingUserId(null);
     }
   };
 
@@ -57,8 +79,14 @@ const AdminDashboard = () => {
   return (
     <div className="dashboard">
       <header className="dashboard-header admin-header">
-        <h1>Panel de Administración</h1>
-        <button onClick={logout} className="btn-logout">Cerrar Sesión</button>
+        <div className="dashboard-header-left">
+          <Link to="/" className="dashboard-navlink">Inicio</Link>
+          <h1>Panel de Administración</h1>
+        </div>
+        <div className="dashboard-header-actions">
+          <Link to="/registrar-mascota" className="dashboard-navlink dashboard-navlink-primary">Registrar mascota</Link>
+          <button onClick={logout} className="btn-logout">Cerrar Sesión</button>
+        </div>
       </header>
 
       <div className="dashboard-content">
@@ -111,47 +139,27 @@ const AdminDashboard = () => {
                       <td>{usuario.direccion}</td>
                       <td>{new Date(usuario.fechaRegistro).toLocaleDateString()}</td>
                       <td>
-                        <button
-                          className="btn-action"
-                          onClick={() => loadUserMascotas(usuario.id)}
-                        >
-                          Ver Mascotas
-                        </button>
+                        <div className="actions-cell">
+                          <button
+                            className="btn-action"
+                            onClick={() => loadUserMascotas(usuario.id)}
+                          >
+                            Ver Mascotas
+                          </button>
+                          <button
+                            className="btn-action btn-action-danger"
+                            onClick={() => handleDeleteUsuario(usuario)}
+                            disabled={deletingUserId === usuario.id}
+                          >
+                            {deletingUserId === usuario.id ? 'Eliminando...' : 'Eliminar'}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-
-            {selectedUser && (
-              <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
-                <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                  <h3>Mascotas de {selectedUser.nombreCompleto}</h3>
-                  <div className="mascotas-list">
-                    {userMascotas.length === 0 ? (
-                      <p>Este usuario no tiene mascotas registradas</p>
-                    ) : (
-                      userMascotas.map((mascota) => (
-                        <div key={mascota.id} className="mascota-item">
-                          <p><strong>Nombre:</strong> {mascota.nombre}</p>
-                          <p><strong>Especie:</strong> {mascota.especie}</p>
-                          <p><strong>Raza:</strong> {mascota.raza}</p>
-                          <p><strong>Estado:</strong>
-                            <span className={`badge ${getEstadoBadge(mascota.estado)}`}>
-                              {mascota.estado.replace('_', ' ')}
-                            </span>
-                          </p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                  <button className="btn-primary" onClick={() => setSelectedUser(null)}>
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -159,7 +167,7 @@ const AdminDashboard = () => {
           <div className="mascotas-section">
             <h2>Todas las Mascotas</h2>
             <p className="info-text">
-              Selecciona un usuario de la pestaña "Usuarios" para ver sus mascotas.
+              Selecciona un usuario para ver sus mascotas.
             </p>
             <div className="mascotas-grid">
               {usuarios.map((usuario) => (
@@ -169,6 +177,35 @@ const AdminDashboard = () => {
                   </h3>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {selectedUser && (
+          <div className="modal-overlay" onClick={() => setSelectedUser(null)}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <h3>Mascotas de {selectedUser.nombreCompleto}</h3>
+              <div className="mascotas-list">
+                {userMascotas.length === 0 ? (
+                  <p>Este usuario no tiene mascotas registradas</p>
+                ) : (
+                  userMascotas.map((mascota) => (
+                    <div key={mascota.id} className="mascota-item">
+                      <p><strong>Nombre:</strong> {mascota.nombre}</p>
+                      <p><strong>Especie:</strong> {mascota.especie}</p>
+                      <p><strong>Raza:</strong> {mascota.raza}</p>
+                      <p><strong>Estado:</strong>
+                        <span className={`badge ${getEstadoBadge(mascota.estado)}`}>
+                          {mascota.estado.replace('_', ' ')}
+                        </span>
+                      </p>
+                    </div>
+                  ))
+                )}
+              </div>
+              <button className="btn-primary" onClick={() => setSelectedUser(null)}>
+                Cerrar
+              </button>
             </div>
           </div>
         )}
