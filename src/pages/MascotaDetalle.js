@@ -24,7 +24,7 @@ const MascotaDetalle = () => {
         if (!isMounted) return;
         const status = e.response?.status;
         if (status === 401 || status === 403) {
-          setError('Este detalle requiere iniciar sesión (o ajustar permisos del backend para lectura pública).');
+          setError('No tienes permisos para ver este detalle.');
         } else {
           setError('No se pudo cargar la mascota.');
         }
@@ -54,7 +54,7 @@ const MascotaDetalle = () => {
                 <>
                   <div className="auth-user">
                     <div className="auth-user-label">Conectado</div>
-                    <div className="auth-user-value">{user?.email}</div>
+                    <div className="auth-user-value">{user?.nombreCompleto || user?.email}</div>
                   </div>
                   <Link to={isAdmin ? '/admin' : '/dashboard'} className="btn btn-primary">
                     {isAdmin ? 'Panel Admin' : 'Mi Panel'}
@@ -95,12 +95,17 @@ const MascotaDetalle = () => {
             <span className="brand-mark">S</span>
             <span className="brand-text">Sanos y Salvos</span>
           </Link>
+          <nav className="nav">
+            <Link to="/" className="nav-link">Inicio</Link>
+            <Link to="/registrar-mascota" className="nav-link">Registrar mascota</Link>
+            <Link to="/mascotas" className="nav-link">Mascotas</Link>
+          </nav>
           <div className="auth-area">
             {isAuthenticated ? (
               <>
                 <div className="auth-user">
                   <div className="auth-user-label">Conectado</div>
-                  <div className="auth-user-value">{user?.email}</div>
+                  <div className="auth-user-value">{user?.nombreCompleto || user?.email}</div>
                 </div>
                 <Link to={isAdmin ? '/admin' : '/dashboard'} className="btn btn-primary">
                   {isAdmin ? 'Panel Admin' : 'Mi Panel'}
@@ -127,7 +132,6 @@ const MascotaDetalle = () => {
 
           <div className="page-head">
             <h1>Detalle de mascota</h1>
-            <div className="muted">ID: {id}</div>
           </div>
 
           {error && (
