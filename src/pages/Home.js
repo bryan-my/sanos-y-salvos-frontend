@@ -1,12 +1,9 @@
-import React, { useMemo, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import React, { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Home = () => {
   const { isAuthenticated, isAdmin, logout, user } = useAuth();
-  const [mascotaId, setMascotaId] = useState('');
-  const navigate = useNavigate();
-
   const featuredPets = useMemo(
     () => [
       {
@@ -55,13 +52,6 @@ const Home = () => {
     []
   );
 
-  const handleBuscar = (e) => {
-    e.preventDefault();
-    const id = mascotaId.trim();
-    if (!id) return;
-    navigate(`/mascotas/${encodeURIComponent(id)}`);
-  };
-
   const handleScrollTo = (id) => (e) => {
     e.preventDefault();
     const el = document.getElementById(id);
@@ -86,7 +76,8 @@ const Home = () => {
 
           <nav className="nav">
             <a href="#inicio" className="nav-link" onClick={handleScrollTo('inicio')}>Inicio</a>
-            <a href="#mascotas" className="nav-link" onClick={handleScrollTo('mascotas')}>Mascotas</a>
+            <Link to="/registrar-mascota" className="nav-link">Registrar mascota</Link>
+            <Link to="/mascotas" className="nav-link">Mascotas</Link>
             <a href="#como-funciona" className="nav-link" onClick={handleScrollTo('como-funciona')}>Cómo funciona</a>
             <a href="#informacion" className="nav-link" onClick={handleScrollTo('informacion')}>Información</a>
             <a href="#contacto" className="nav-link" onClick={handleScrollTo('contacto')}>Contacto</a>
@@ -97,7 +88,7 @@ const Home = () => {
               <>
                 <div className="auth-user">
                   <div className="auth-user-label">Conectado</div>
-                  <div className="auth-user-value">{user?.email}</div>
+                  <div className="auth-user-value">{user?.nombreCompleto || user?.email}</div>
                 </div>
                 <Link to={isAdmin ? '/admin' : '/dashboard'} className="btn btn-primary">
                   {isAdmin ? 'Panel Admin' : 'Mi Panel'}
@@ -127,28 +118,8 @@ const Home = () => {
               </p>
 
               <div className="hero-actions">
-                <a href="#mascotas" className="btn btn-primary" onClick={handleScrollTo('mascotas')}>Ver mascotas</a>
-                <Link to={isAuthenticated ? (isAdmin ? '/admin' : '/dashboard') : '/register'} className="btn btn-outline">
-                  {isAuthenticated ? 'Registrar una mascota' : 'Crear cuenta'}
-                </Link>
-              </div>
-
-              <div className="search-card">
-                <div className="search-title">Buscar por ID</div>
-                <form onSubmit={handleBuscar} className="search-form">
-                  <input
-                    type="text"
-                    value={mascotaId}
-                    onChange={(e) => setMascotaId(e.target.value)}
-                    placeholder="Ej: 12"
-                    className="search-input"
-                    aria-label="Buscar mascota por ID"
-                  />
-                  <button type="submit" className="btn btn-primary">Buscar</button>
-                </form>
-                <div className="search-hint">
-                  Si el backend protege el detalle, te pedirá iniciar sesión.
-                </div>
+                <Link to="/mascotas" className="btn btn-primary">Ver mascotas</Link>
+                <Link to="/registrar-mascota" className="btn btn-outline">Registrar una mascota</Link>
               </div>
             </div>
 
@@ -166,9 +137,7 @@ const Home = () => {
           <div className="container">
             <div className="section-head">
               <h2>Mascotas destacadas</h2>
-              <p>
-                Ejemplos visuales para darle vida a la portada. Luego lo conectamos a un endpoint público (por ejemplo: perdidas/encontradas).
-              </p>
+              <p>Algunos ejemplos. Para ver todas las mascotas registradas, abre el listado.</p>
             </div>
 
             <div className="card-grid">
@@ -182,10 +151,8 @@ const Home = () => {
                     </div>
                     <div className="pet-meta">{p.location}</div>
                     <div className="pet-actions">
-                      <Link to="/login" className="btn btn-ghost btn-sm">Ver detalle</Link>
-                      <Link to={isAuthenticated ? '/dashboard' : '/register'} className="btn btn-outline btn-sm">
-                        {isAuthenticated ? 'Registrar' : 'Registrarme'}
-                      </Link>
+                      <Link to="/mascotas" className="btn btn-ghost btn-sm">Ver todas</Link>
+                      <Link to="/registrar-mascota" className="btn btn-outline btn-sm">Registrar</Link>
                     </div>
                   </div>
                 </article>
