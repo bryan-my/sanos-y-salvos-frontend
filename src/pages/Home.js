@@ -193,20 +193,20 @@ const Home = () => {
             <div>
               <h2>Información</h2>
               <p className="muted">
-                Sanos y Salvos es una plataforma pensada para dueños, clínicas y refugios. Queremos que sea rápida, clara y agradable para usar en momentos difíciles.
+                Sanos y Salvos sirve para publicar y encontrar reportes de mascotas perdidas o encontradas, para que más personas puedan ayudar a que vuelvan con su familia. Está pensado para dueños, clínicas y refugios, con foco en claridad y rapidez.
               </p>
               <div className="stat-row">
                 <div className="stat">
-                  <div className="stat-value">3</div>
-                  <div className="stat-label">Servicios</div>
+                  <div className="stat-value">Reporta</div>
+                  <div className="stat-label">Una mascota</div>
                 </div>
                 <div className="stat">
-                  <div className="stat-value">JWT</div>
-                  <div className="stat-label">Seguridad</div>
+                  <div className="stat-value">Busca</div>
+                  <div className="stat-label">En el listado</div>
                 </div>
                 <div className="stat">
-                  <div className="stat-value">8080</div>
-                  <div className="stat-label">Gateway</div>
+                  <div className="stat-value">Difunde</div>
+                  <div className="stat-label">Para sumar ayuda</div>
                 </div>
               </div>
             </div>
@@ -223,7 +223,7 @@ const Home = () => {
                 )}
               </div>
               <div className="info-card-note">
-                La lectura puede ser pública; el registro de mascotas requiere autenticación.
+                Revisa reportes y, si necesitas publicar, crea una cuenta para administrar tus publicaciones.
               </div>
             </div>
           </div>
