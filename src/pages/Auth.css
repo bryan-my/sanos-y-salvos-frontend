@@ -4,6 +4,30 @@
   align-items: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+
+.auth-home {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+}
+
+.auth-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.55rem 0.95rem;
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.92);
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  background: rgba(255, 255, 255, 0.14);
+  font-weight: 700;
+}
+
+.auth-home-link:hover {
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .auth-card {
