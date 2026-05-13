@@ -1,70 +1,100 @@
-# Getting Started with Create React App
+# Sanos y Salvos (Frontend)
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Frontend web para **Sanos y Salvos**, una plataforma para **publicar, buscar y difundir reportes de mascotas perdidas o encontradas**.
 
-## Available Scripts
+## Stack
 
-In the project directory, you can run:
+- React + Create React App
+- React Router (rutas)
+- Axios (consumo de API)
 
-### `npm start`
+## Funcionalidades
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Inicio con acceso rápido a secciones y links de autenticación.
+- Listado público de mascotas registradas.
+- Detalle de mascota por ID.
+- Registro de mascotas (requiere sesión).
+- Panel de usuario: ver mascotas asociadas al usuario.
+- Panel admin: listar usuarios, ver mascotas de un usuario y eliminar usuarios.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## Cómo corre (alto nivel)
 
-### `npm test`
+- El enrutamiento se define en [App.js](src/App.js) con `react-router-dom`.
+- La sesión se maneja con un contexto (AuthProvider) en [AuthContext.js](src/context/AuthContext.js).
+  - Guarda `token` y `user` en `localStorage`.
+  - Expone `isAuthenticated` e `isAdmin` (rol `ADMINISTRADOR`).
+- Las rutas protegidas usan [ProtectedRoute.js](src/components/ProtectedRoute.js):
+  - Si no hay sesión, redirige a `/login`.
+  - Si `requireAdmin` y no es admin, redirige a `/dashboard`.
+- La comunicación con el backend se centraliza en [api.js](src/services/api.js):
+  - Axios con `baseURL`.
+  - Interceptor que agrega `Authorization: Bearer <token>`.
+  - Si el backend responde `401` y hay token, limpia sesión y redirige a `/login`.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Endpoints usados
 
-### `npm run build`
+Definidos en [api.js](src/services/api.js) (prefijo `/api` por defecto):
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Auth
+  - `POST /auth/login`
+  - `POST /usuarios/registro`
+- Usuarios (admin)
+  - `GET /usuarios/lista`
+  - `DELETE /usuarios/:id`
+- Mascotas
+  - `POST /mascotas`
+  - `GET /mascotas/lista`
+  - `GET /mascotas/usuario/:idUsuario`
+  - `GET /mascotas/:id`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Configuración de API
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Por defecto, la app apunta a:
 
-### `npm run eject`
+- `REACT_APP_API_URL` (si existe) o
+- `http://localhost:8080/api`
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Opcionalmente, podés setear `REACT_APP_API_URL` (Create React App):
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+set REACT_APP_API_URL=http://localhost:8080/api
+npm start
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Requisitos
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Node.js (LTS recomendado)
+- Backend corriendo (por defecto en `http://localhost:8080`)
 
-## Learn More
+## Scripts
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+En la raíz del proyecto:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+npm install
+```
 
-### Code Splitting
+```bash
+npm start
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Abre la app en `http://localhost:3000`.
 
-### Analyzing the Bundle Size
+Build de producción:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```bash
+npm run build
+```
 
-### Making a Progressive Web App
+Tests:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+```bash
+npm test
+```
 
-### Advanced Configuration
+## Estructura del proyecto (resumen)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- `src/pages/`: páginas (Home, Login, Register, Mascotas, Detalle, Dashboards).
+- `src/context/`: contexto de autenticación.
+- `src/services/`: cliente HTTP y servicios hacia el backend.
+- `src/components/`: componentes reutilizables (rutas protegidas).
