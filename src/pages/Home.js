@@ -1,9 +1,40 @@
-import React, { useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useMemo, useState, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import MapaInteractivo from '../components/MapaInteractivo';
+import { geolocalizacionService, reportesService } from '../services/api';
 
 const Home = () => {
   const { isAuthenticated, isAdmin, logout, user } = useAuth();
+  const navigate = useNavigate();
+  const [ubicaciones, setUbicaciones] = useState([]);
+
+  useEffect(() => {
+    const fetchUbicaciones = async () => {
+      try {
+        const [mapaResponse, avistamientosResponse] = await Promise.all([
+          geolocalizacionService.getMapaPublico(),
+          reportesService.getAvistamientosRecientes()
+        ]);
+
+        const ubicacionesMapa = mapaResponse.data || [];
+        const avistamientosFormateados = (avistamientosResponse.data || []).map(avistamiento => ({
+          latitud: avistamiento.latitud,
+          longitud: avistamiento.longitud,
+          descripcionFisica: avistamiento.descripcionFisica || avistamiento.descripcionLugar,
+          especie: avistamiento.especie
+        }));
+
+        const combinedArray = [...ubicacionesMapa, ...avistamientosFormateados];
+        setUbicaciones(combinedArray);
+      } catch (error) {
+        console.error('Error al cargar ubicaciones:', error);
+      }
+    };
+
+    fetchUbicaciones();
+  }, []);
+
   const featuredPets = useMemo(
     () => [
       {
@@ -78,6 +109,8 @@ const Home = () => {
             <a href="#inicio" className="nav-link" onClick={handleScrollTo('inicio')}>Inicio</a>
             <Link to="/registrar-mascota" className="nav-link">Registrar mascota</Link>
             <Link to="/mascotas" className="nav-link">Mascotas</Link>
+            <Link to="/reportar-avistamiento" className="nav-link" style={{ color: '#14b1ab', fontWeight: 500 }}>Reportar avistamiento</Link>
+            <a href="#mapa" className="nav-link" onClick={handleScrollTo('mapa')}>Mapa</a>
             <a href="#como-funciona" className="nav-link" onClick={handleScrollTo('como-funciona')}>Cómo funciona</a>
             <a href="#informacion" className="nav-link" onClick={handleScrollTo('informacion')}>Información</a>
             <a href="#contacto" className="nav-link" onClick={handleScrollTo('contacto')}>Contacto</a>
@@ -120,6 +153,7 @@ const Home = () => {
               <div className="hero-actions">
                 <Link to="/mascotas" className="btn btn-primary">Ver mascotas</Link>
                 <Link to="/registrar-mascota" className="btn btn-outline">Registrar una mascota</Link>
+                <button onClick={() => navigate('/reportar-avistamiento')} className="btn btn-primary" style={{ background: '#14b1ab' }}>Reportar Mascota Vista</button>
               </div>
             </div>
 
@@ -158,6 +192,16 @@ const Home = () => {
                 </article>
               ))}
             </div>
+          </div>
+        </section>
+
+        <section id="mapa" className="section section-alt">
+          <div className="container">
+            <div className="section-head">
+              <h2>Mascotas perdidas y avistamientos recientes</h2>
+              <p>Explora el mapa para ver reportes cercanos.</p>
+            </div>
+            <MapaInteractivo ubicaciones={ubicaciones} />
           </div>
         </section>
 
@@ -255,6 +299,8 @@ const Home = () => {
             <div className="footer-title">Secciones</div>
             <a href="#inicio" className="footer-link" onClick={handleScrollTo('inicio')}>Inicio</a>
             <a href="#mascotas" className="footer-link" onClick={handleScrollTo('mascotas')}>Mascotas</a>
+            <Link to="/reportar-avistamiento" className="footer-link">Reportar avistamiento</Link>
+            <a href="#mapa" className="footer-link" onClick={handleScrollTo('mapa')}>Mapa</a>
             <a href="#informacion" className="footer-link" onClick={handleScrollTo('informacion')}>Información</a>
             <a href="#contacto" className="footer-link" onClick={handleScrollTo('contacto')}>Contacto</a>
           </div>

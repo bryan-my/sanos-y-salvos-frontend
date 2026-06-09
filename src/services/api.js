@@ -51,4 +51,13 @@ export const mascotaService = {
   getById: (id) => api.get(`/mascotas/${id}`),
 };
 
+export const geolocalizacionService = {
+  getMapaPublico: () => api.get('/geolocalizacion/mapa'),
+};
+
+export const reportesService = {
+  reportarAvistamiento: (data) => api.post('/reportes/avistamiento', data),
+  getAvistamientosRecientes: () => api.get('/reportes/recientes'),
+};
+
 export default api;

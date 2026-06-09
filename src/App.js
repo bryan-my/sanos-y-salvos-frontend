@@ -9,6 +9,7 @@ import Mascotas from './pages/Mascotas';
 import RegistrarMascota from './pages/RegistrarMascota';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import ReportarAvistamiento from './pages/ReportarAvistamiento';
 import './App.css';
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/registrar-mascota" element={<RegistrarMascota />} />
+        <Route path="/reportar-avistamiento" element={<ReportarAvistamiento />} />
         <Route path="/mascotas" element={<Mascotas />} />
         <Route path="/mascotas/:id" element={<MascotaDetalle />} />
         <Route
