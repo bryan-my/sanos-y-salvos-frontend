@@ -60,4 +60,10 @@ export const reportesService = {
   getAvistamientosRecientes: () => api.get('/reportes/recientes'),
 };
 
+export const coincidenciasService = {
+  getCoincidenciasPendientes: () => api.get('/coincidencias/pendientes'),
+  actualizarEstadoCoincidencia: (id, estado) => 
+    api.put(`/coincidencias/${id}/estado?nuevoEstado=${estado}`),
+};
+
 export default api;

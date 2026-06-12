@@ -10,6 +10,7 @@ import RegistrarMascota from './pages/RegistrarMascota';
 import UserDashboard from './pages/UserDashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import ReportarAvistamiento from './pages/ReportarAvistamiento';
+import BuzonCoincidencias from './pages/BuzonCoincidencias';
 import './App.css';
 
 function App() {
@@ -44,6 +45,14 @@ function App() {
           element={
             <ProtectedRoute requireAdmin>
               <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/buzon-coincidencias"
+          element={
+            <ProtectedRoute>
+              <BuzonCoincidencias />
             </ProtectedRoute>
           }
         />

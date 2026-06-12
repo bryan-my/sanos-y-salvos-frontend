@@ -114,6 +114,9 @@ const Home = () => {
             <a href="#como-funciona" className="nav-link" onClick={handleScrollTo('como-funciona')}>Cómo funciona</a>
             <a href="#informacion" className="nav-link" onClick={handleScrollTo('informacion')}>Información</a>
             <a href="#contacto" className="nav-link" onClick={handleScrollTo('contacto')}>Contacto</a>
+            {isAuthenticated && (
+              <Link to="/buzon-coincidencias" className="nav-link" style={{ color: '#14b1ab', fontWeight: 500 }}>Buzón de Matches</Link>
+            )}
           </nav>
 
           <div className="auth-area">
@@ -303,6 +306,9 @@ const Home = () => {
             <a href="#mapa" className="footer-link" onClick={handleScrollTo('mapa')}>Mapa</a>
             <a href="#informacion" className="footer-link" onClick={handleScrollTo('informacion')}>Información</a>
             <a href="#contacto" className="footer-link" onClick={handleScrollTo('contacto')}>Contacto</a>
+            {isAuthenticated && (
+              <Link to="/buzon-coincidencias" className="footer-link">Buzón de Matches</Link>
+            )}
           </div>
           <div className="footer-col">
             <div className="footer-title">Cuenta</div>

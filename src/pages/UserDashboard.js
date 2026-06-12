@@ -50,6 +50,7 @@ const UserDashboard = () => {
           <h1>Mis Mascotas</h1>
         </div>
         <div className="dashboard-header-actions">
+          <Link to="/buzon-coincidencias" className="dashboard-navlink" style={{ color: '#14b1ab' }}>Buzón de Matches</Link>
           <Link to="/registrar-mascota" className="dashboard-navlink dashboard-navlink-primary">Registrar mascota</Link>
           <button onClick={logout} className="btn-logout">Cerrar Sesión</button>
         </div>
