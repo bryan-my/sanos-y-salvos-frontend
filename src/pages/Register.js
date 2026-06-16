@@ -1,7 +1,26 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { authService } from '../services/api';
 import './Auth.css';
+
+const parseJwt = (token) => {
+  try {
+    const payload = token.split('.')[1];
+    if (!payload) return null;
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(normalized.length + (4 - (normalized.length % 4)) % 4, '=');
+    const json = decodeURIComponent(
+      atob(padded)
+        .split('')
+        .map((c) => `%${`00${c.charCodeAt(0).toString(16)}`.slice(-2)}`)
+        .join('')
+    );
+    return JSON.parse(json);
+  } catch {
+    return null;
+  }
+};
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -15,6 +34,7 @@ const Register = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const handleChange = (e) => {
     setFormData({
@@ -30,9 +50,22 @@ const Register = () => {
 
     try {
       await authService.register(formData);
-      navigate('/login');
+
+      // Login automático con las mismas credenciales
+      const loginResponse = await authService.login(formData.email, formData.password);
+      const apiToken = loginResponse.data?.token;
+      const decoded = apiToken ? parseJwt(apiToken) : null;
+      const userData = {
+        id: loginResponse.data?.userId ?? decoded?.id ?? null,
+        nombreCompleto: loginResponse.data?.nombreCompleto ?? null,
+        email: loginResponse.data?.email ?? formData.email,
+        rol: loginResponse.data?.rol ?? decoded?.rol ?? null,
+      };
+
+      login(userData, apiToken);
+      navigate('/', { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || 'Error al registrar');
+      setError(err.response?.data?.message || 'Error al registrar. Intenta nuevamente.');
     } finally {
       setLoading(false);
     }
