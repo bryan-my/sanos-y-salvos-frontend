@@ -22,11 +22,13 @@ const MapaInteractivo = ({ ubicaciones = [] }) => {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-      {ubicaciones.map((ubicacion, index) => (
-        <Marker
-          key={index}
-          position={[ubicacion.latitud, ubicacion.longitud]}
-        >
+      {ubicaciones
+        .filter(ubicacion => ubicacion && ubicacion.latitud != null && ubicacion.longitud != null)
+        .map((ubicacion, index) => (
+          <Marker
+            key={index}
+            position={[ubicacion.latitud, ubicacion.longitud]}
+          >
           <Popup>
             {ubicacion.descripcionLugar || ubicacion.descripcionFisica || 'Sin descripción'}
           </Popup>
