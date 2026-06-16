@@ -61,7 +61,10 @@ export const reportesService = {
 };
 
 export const coincidenciasService = {
+  getMatchesPorUsuario: () => api.get('/coincidencias'),
   getCoincidenciasPendientes: () => api.get('/coincidencias/pendientes'),
+  aceptarMatch: (id) => api.put(`/coincidencias/${id}/aceptar`),
+  rechazarMatch: (id) => api.put(`/coincidencias/${id}/rechazar`),
   actualizarEstadoCoincidencia: (id, estado) => 
     api.put(`/coincidencias/${id}/estado?nuevoEstado=${estado}`),
 };

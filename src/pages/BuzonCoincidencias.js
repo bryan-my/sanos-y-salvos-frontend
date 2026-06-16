@@ -2,17 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { coincidenciasService } from '../services/api';
+import MatchDetalleModal from '../components/MatchDetalleModal';
 
 const BuzonCoincidencias = () => {
   const { isAuthenticated, logout, user } = useAuth();
-  const [coincidencias, setCoincidencias] = useState([]);
+  const [matchesPendientes, setMatchesPendientes] = useState([]);
+  const [matchesAceptados, setMatchesAceptados] = useState([]);
+  const [tabActivo, setTabActivo] = useState('pendientes'); // 'pendientes' | 'aceptadas'
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState(null);
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [coincidenciaSeleccionada, setCoincidenciaSeleccionada] = useState(null);
 
   const fetchCoincidencias = async () => {
     try {
       const response = await coincidenciasService.getCoincidenciasPendientes();
-      setCoincidencias(response.data || []);
+      setMatchesPendientes(response.data || []);
     } catch (error) {
       console.error('Error al cargar coincidencias:', error);
       setMessage('Error al cargar las coincidencias');
@@ -25,17 +30,40 @@ const BuzonCoincidencias = () => {
     fetchCoincidencias();
   }, []);
 
-  const handleActualizarEstado = async (id, estado) => {
+  const handleAceptar = async (id) => {
     try {
-      await coincidenciasService.actualizarEstadoCoincidencia(id, estado);
-      setMessage(estado === 'APROBADO' ? 'Coincidencia aprobada exitosamente' : 'Coincidencia descartada');
-      // Refrescar la lista
-      fetchCoincidencias();
+      await coincidenciasService.actualizarEstadoCoincidencia(id, 'APROBADO');
+      // Mover el match de pendientes a aceptados
+      const matchAceptado = matchesPendientes.find(match => match.id === id);
+      if (matchAceptado) {
+        setMatchesPendientes(prev => prev.filter(match => match.id !== id));
+        setMatchesAceptados(prev => [...prev, { ...matchAceptado, estado: 'APROBADO' }]);
+      }
+      setMessage('Coincidencia aceptada exitosamente');
     } catch (error) {
-      console.error('Error al actualizar estado:', error);
-      setMessage('Error al actualizar el estado de la coincidencia');
+      console.error('Error al aceptar:', error);
+      setMessage('Error al aceptar la coincidencia');
     }
   };
+
+  const handleRechazar = async (id) => {
+    try {
+      await coincidenciasService.actualizarEstadoCoincidencia(id, 'DESCARTADO');
+      // Eliminar el match de pendientes
+      setMatchesPendientes(prev => prev.filter(match => match.id !== id));
+      setMessage('Coincidencia rechazada');
+    } catch (error) {
+      console.error('Error al rechazar:', error);
+      setMessage('Error al rechazar la coincidencia');
+    }
+  };
+
+  const handleVerDetalle = (coincidencia) => {
+    setCoincidenciaSeleccionada(coincidencia);
+    setModalAbierto(true);
+  };
+
+  const coincidenciasAMostrar = tabActivo === 'pendientes' ? matchesPendientes : matchesAceptados;
 
   return (
     <div className="site">
@@ -70,10 +98,47 @@ const BuzonCoincidencias = () => {
 
       <main style={{ paddingTop: '120px', paddingBottom: '60px' }}>
         <section className="section">
-          <div className="container" style={{ maxWidth: '900px' }}>
+          <div className="container" style={{ maxWidth: '1000px' }}>
             <div className="section-head">
               <h1>Buzón de Coincidencias</h1>
               <p>Gestiona los matches generados entre mascotas perdidas y avistamientos</p>
+            </div>
+
+            {/* Tabs */}
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginBottom: '24px',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
+              <button
+                onClick={() => setTabActivo('pendientes')}
+                style={{
+                  padding: '12px 24px',
+                  border: 'none',
+                  backgroundColor: tabActivo === 'pendientes' ? '#14b1ab' : 'transparent',
+                  color: tabActivo === 'pendientes' ? 'white' : '#64748b',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  borderRadius: '8px 8px 0 0'
+                }}
+              >
+                Pendientes ({matchesPendientes.length})
+              </button>
+              <button
+                onClick={() => setTabActivo('aceptadas')}
+                style={{
+                  padding: '12px 24px',
+                  border: 'none',
+                  backgroundColor: tabActivo === 'aceptadas' ? '#14b1ab' : 'transparent',
+                  color: tabActivo === 'aceptadas' ? 'white' : '#64748b',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  borderRadius: '8px 8px 0 0'
+                }}
+              >
+                Aceptadas ({matchesAceptados.length})
+              </button>
             </div>
 
             {message && (
@@ -92,82 +157,180 @@ const BuzonCoincidencias = () => {
               <div style={{ textAlign: 'center', padding: '40px' }}>
                 <p>Cargando coincidencias...</p>
               </div>
-            ) : coincidencias.length === 0 ? (
+            ) : coincidenciasAMostrar.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px', backgroundColor: '#f8fafc', borderRadius: '10px' }}>
-                <h3 style={{ color: '#64748b' }}>No hay coincidencias pendientes</h3>
-                <p style={{ color: '#94a3b8', marginTop: '8px' }}>¡Genial! No tienes matches pendientes de revisión</p>
+                <h3 style={{ color: '#64748b' }}>
+                  {tabActivo === 'pendientes' 
+                    ? 'No hay coincidencias pendientes' 
+                    : 'No hay coincidencias aceptadas'}
+                </h3>
+                <p style={{ color: '#94a3b8', marginTop: '8px' }}>
+                  {tabActivo === 'pendientes' 
+                    ? '¡Genial! No tienes matches pendientes de revisión' 
+                    : 'Cuando aceptes un match, aparecerá aquí'}
+                </p>
               </div>
             ) : (
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' }}>
-                {coincidencias.map((coincidencia) => (
-                  <div key={coincidencia.id} style={{
-                    padding: '20px',
-                    backgroundColor: 'white',
-                    borderRadius: '10px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-                    border: '1px solid #e2e8f0'
-                  }}>
-                    <div style={{ marginBottom: '16px' }}>
-                      <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '4px' }}>ID del Avistamiento</div>
-                      <div style={{ fontSize: '18px', fontWeight: 600 }}>#{coincidencia.avistamientoId || 'N/A'}</div>
-                    </div>
-                    
-                    <div style={{ marginBottom: '16px' }}>
-                      <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '4px' }}>Porcentaje de Similitud</div>
-                      <div style={{ 
-                        fontSize: '28px', 
-                        fontWeight: 700, 
-                        color: coincidencia.porcentajeSimilitud >= 70 ? '#10b981' : '#f59e0b' 
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '20px' }}>
+                {coincidenciasAMostrar.map((coincidencia) => (
+                  <div 
+                    key={coincidencia.id} 
+                    style={{
+                      padding: '24px',
+                      backgroundColor: 'white',
+                      borderRadius: '12px',
+                      boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
+                      border: '1px solid #e2e8f0',
+                      cursor: tabActivo === 'aceptadas' ? 'pointer' : 'default'
+                    }}
+                    onClick={() => {
+                      if (tabActivo === 'aceptadas') {
+                        handleVerDetalle(coincidencia);
+                      }
+                    }}
+                  >
+                    {/* Porcentaje de Similitud */}
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      marginBottom: '16px'
+                    }}>
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '80px',
+                        height: '80px',
+                        backgroundColor: (coincidencia.porcentajeSimilitud ?? 0) >= 70 ? '#f0fdf4' : '#fef3c7',
+                        borderRadius: '50%',
+                        border: '3px solid',
+                        borderColor: (coincidencia.porcentajeSimilitud ?? 0) >= 70 ? '#10b981' : '#f59e0b'
                       }}>
-                        {coincidencia.porcentajeSimilitud ? `${coincidencia.porcentajeSimilitud}%` : 'N/A'}
+                        <div style={{
+                          fontSize: '20px',
+                          fontWeight: 700,
+                          color: (coincidencia.porcentajeSimilitud ?? 0) >= 70 ? '#10b981' : '#f59e0b'
+                        }}>
+                          {coincidencia.porcentajeSimilitud ? `${coincidencia.porcentajeSimilitud}%` : 'N/A'}
+                        </div>
+                        <div style={{ fontSize: '10px', color: '#64748b', textAlign: 'center' }}>
+                          Similitud
+                        </div>
                       </div>
-                    </div>
-                    
-                    <div style={{ marginBottom: '20px' }}>
-                      <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '4px' }}>Fecha</div>
-                      <div style={{ fontSize: '14px' }}>
-                        {coincidencia.fecha ? new Date(coincidencia.fecha).toLocaleDateString('es-CL', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        }) : 'N/A'}
+
+                      <div style={{ flex: 1, marginLeft: '20px' }}>
+                        <div style={{ fontSize: '14px', color: '#64748b', marginBottom: '4px' }}>
+                          Fecha del match
+                        </div>
+                        <div style={{ fontSize: '14px' }}>
+                          {coincidencia.fecha ? new Date(coincidencia.fecha).toLocaleDateString('es-CL', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          }) : 'No especificada'}
+                        </div>
                       </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '10px' }}>
-                      <button
-                        onClick={() => handleActualizarEstado(coincidencia.id, 'APROBADO')}
-                        style={{
-                          flex: 1,
-                          padding: '10px 16px',
-                          backgroundColor: '#10b981',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Aprobar
-                      </button>
-                      <button
-                        onClick={() => handleActualizarEstado(coincidencia.id, 'DESCARTADO')}
-                        style={{
-                          flex: 1,
-                          padding: '10px 16px',
-                          backgroundColor: '#ef4444',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontWeight: 600,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Descartar
-                      </button>
+                    {/* Comparación de Mascota y Avistamiento */}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px', marginBottom: '20px' }}>
+                      <div style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#14b1ab', fontWeight: 600, marginBottom: '8px' }}>
+                          Mascota Perdida
+                        </div>
+                        <div style={{ fontSize: '13px' }}>
+                          <p style={{ marginBottom: '4px' }}>
+                            <strong>Nombre:</strong> {coincidencia.mascota?.nombre || 'No especificado'}
+                          </p>
+                          <p style={{ marginBottom: '4px' }}>
+                            <strong>Especie:</strong> {coincidencia.mascota?.especie || 'No especificada'}
+                          </p>
+                          <p style={{ marginBottom: '4px' }}>
+                            <strong>Color:</strong> {coincidencia.mascota?.color || 'No especificado'}
+                          </p>
+                          <p>
+                            <strong>Tamaño:</strong> {coincidencia.mascota?.tamaño || coincidencia.mascota?.tamanho || 'No especificado'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div style={{ padding: '12px', backgroundColor: '#f0fdf4', borderRadius: '8px' }}>
+                        <div style={{ fontSize: '12px', color: '#10b981', fontWeight: 600, marginBottom: '8px' }}>
+                          Avistamiento
+                        </div>
+                        <div style={{ fontSize: '13px' }}>
+                          <p style={{ marginBottom: '4px' }}>
+                            <strong>Especie:</strong> {coincidencia.avistamiento?.especie || 'No especificada'}
+                          </p>
+                          <p style={{ marginBottom: '4px' }}>
+                            <strong>Descripción:</strong> {coincidencia.avistamiento?.descripcionFisica || coincidencia.avistamiento?.descripcionLugar || 'No especificada'}
+                          </p>
+                          <p>
+                            <strong>Ubicación:</strong> {coincidencia.avistamiento?.ubicacion || 'No especificada'}
+                          </p>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Botones (solo para pendientes) */}
+                    {tabActivo === 'pendientes' && (
+                      <div style={{ display: 'flex', gap: '10px' }}>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAceptar(coincidencia.id);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '10px 16px',
+                            backgroundColor: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Aceptar Match
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRechazar(coincidencia.id);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '10px 16px',
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            fontWeight: 600,
+                            cursor: 'pointer'
+                          }}
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Mensaje para aceptadas */}
+                    {tabActivo === 'aceptadas' && (
+                      <div style={{ 
+                        textAlign: 'center', 
+                        padding: '8px', 
+                        backgroundColor: '#dcfce7', 
+                        color: '#166534', 
+                        borderRadius: '8px', 
+                        fontSize: '13px' 
+                      }}>
+                        Haz clic para ver los detalles de contacto
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -175,6 +338,14 @@ const BuzonCoincidencias = () => {
           </div>
         </section>
       </main>
+
+      {/* Modal de detalles */}
+      {modalAbierto && (
+        <MatchDetalleModal 
+          match={coincidenciaSeleccionada} 
+          onClose={() => setModalAbierto(false)} 
+        />
+      )}
 
       <footer className="site-footer">
         <div className="container footer-inner">
