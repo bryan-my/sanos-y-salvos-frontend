@@ -57,6 +57,14 @@ body {
   min-height: 100vh;
   background: var(--bg);
   color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Empuja el footer al fondo en todas las páginas */
+.site > main,
+.page {
+  flex: 1;
 }
 
 .container {
