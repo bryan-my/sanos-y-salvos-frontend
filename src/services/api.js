@@ -53,6 +53,7 @@ export const mascotaService = {
 
 export const geolocalizacionService = {
   getMapaPublico: () => api.get('/geolocalizacion/mapa'),
+  registrarUbicacion: (data) => api.post('/geolocalizacion/registrar', data),
 };
 
 export const reportesService = {

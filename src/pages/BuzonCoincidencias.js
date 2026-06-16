@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { coincidenciasService } from '../services/api';
 import MatchDetalleModal from '../components/MatchDetalleModal';
+import { formatAvistamientoUbicacion } from '../utils/avistamientoUtils';
 
 const BuzonCoincidencias = () => {
   const { isAuthenticated, logout, user } = useAuth();
@@ -270,7 +271,7 @@ const BuzonCoincidencias = () => {
                             <strong>Descripción:</strong> {coincidencia.avistamiento?.descripcionFisica || coincidencia.avistamiento?.descripcionLugar || 'No especificada'}
                           </p>
                           <p>
-                            <strong>Ubicación:</strong> {coincidencia.avistamiento?.ubicacion || 'No especificada'}
+                            <strong>Ubicación:</strong> {formatAvistamientoUbicacion(coincidencia.avistamiento)}
                           </p>
                         </div>
                       </div>

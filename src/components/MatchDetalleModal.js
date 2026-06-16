@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatAvistamientoFecha, formatAvistamientoUbicacion } from '../utils/avistamientoUtils';
 
 const MatchDetalleModal = ({ match, onClose }) => {
   if (!match) return null;
@@ -111,14 +112,8 @@ const MatchDetalleModal = ({ match, onClose }) => {
             )}
             <p><strong>Especie:</strong> {match.avistamiento?.especie || 'No especificada'}</p>
             <p><strong>Descripción:</strong> {match.avistamiento?.descripcionFisica || match.avistamiento?.descripcionLugar || 'No especificada'}</p>
-            <p><strong>Ubicación:</strong> {match.avistamiento?.ubicacion || 'No especificada'}</p>
-            <p><strong>Fecha del avistamiento:</strong> {match.avistamiento?.fecha ? new Date(match.avistamiento.fecha).toLocaleDateString('es-CL', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit'
-            }) : 'No especificada'}</p>
+            <p><strong>Ubicación:</strong> {formatAvistamientoUbicacion(match.avistamiento)}</p>
+            <p><strong>Fecha del avistamiento:</strong> {formatAvistamientoFecha(match.avistamiento)}</p>
           </div>
         </div>
 

@@ -1,7 +1,42 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../context/AuthContext';
-import { mascotaService } from '../services/api';
+import { mascotaService, geolocalizacionService } from '../services/api';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+function MapaClickeable({ onPositionChange, markerPos }) {
+  useMapEvents({
+    click(e) {
+      onPositionChange(e.latlng);
+    },
+  });
+
+  if (!markerPos) {
+    return null;
+  }
+
+  return (
+    <Marker
+      position={markerPos}
+      draggable
+      eventHandlers={{
+        dragend(e) {
+          const { lat, lng } = e.target.getLatLng();
+          onPositionChange({ lat, lng });
+        },
+      }}
+    />
+  );
+}
 
 const RegistrarMascota = () => {
   const { isAuthenticated, isAdmin, logout, user } = useAuth();
@@ -15,6 +50,8 @@ const RegistrarMascota = () => {
     fotoUrl: '',
     ultimaUbicacion: '',
     descripcion: '',
+    latitud: null,
+    longitud: null,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -23,6 +60,14 @@ const RegistrarMascota = () => {
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handlePositionChange = (latlng) => {
+    setFormData((prev) => ({
+      ...prev,
+      latitud: latlng.lat,
+      longitud: latlng.lng,
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -37,13 +82,30 @@ const RegistrarMascota = () => {
     setLoading(true);
 
     try {
+      const { latitud, longitud, tamanho, ...mascotaFields } = formData;
       const payload = {
-        ...formData,
+        ...mascotaFields,
         idUsuario: user?.id,
-        tamaño: formData.tamanho,
+        tamaño: tamanho,
       };
       const res = await mascotaService.registrar(payload);
       const idCreado = res.data?.id;
+      
+      // Si hay coordenadas, registrar la ubicación
+      if (idCreado && latitud !== null && longitud !== null) {
+        try {
+          await geolocalizacionService.registrarUbicacion({
+            idMascota: idCreado,
+            latitud,
+            longitud,
+            descripcionLugar: formData.ultimaUbicacion,
+          });
+        } catch (ubicacionErr) {
+          console.error('Error registering location:', ubicacionErr);
+          // No interrumpir el flujo si falla el registro de ubicación
+        }
+      }
+      
       setOk('Mascota registrada correctamente.');
       setFormData({
         nombre: '',
@@ -55,6 +117,8 @@ const RegistrarMascota = () => {
         fotoUrl: '',
         ultimaUbicacion: '',
         descripcion: '',
+        latitud: null,
+        longitud: null,
       });
       if (idCreado) {
         navigate(`/mascotas/${encodeURIComponent(idCreado)}`);
@@ -251,6 +315,28 @@ const RegistrarMascota = () => {
                     className="pet-input"
                     placeholder="Ej: Ñuñoa, Santiago"
                   />
+                </div>
+                <div className="pet-field pet-field-span">
+                  <label className="pet-label">Ubicación en el mapa (clic o arrastra el marcador)</label>
+                  <MapContainer
+                    center={[-33.4569, -70.6812]}
+                    zoom={13}
+                    style={{ height: '300px', width: '100%', borderRadius: '10px' }}
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <MapaClickeable
+                      onPositionChange={handlePositionChange}
+                      markerPos={formData.latitud != null && formData.longitud != null ? [formData.latitud, formData.longitud] : null}
+                    />
+                  </MapContainer>
+                  {formData.latitud && formData.longitud && (
+                    <p style={{ marginTop: '8px', color: '#666' }}>
+                      Coordenadas seleccionadas: {formData.latitud.toFixed(4)}, {formData.longitud.toFixed(4)}
+                    </p>
+                  )}
                 </div>
                 <div className="pet-field pet-field-span">
                   <label className="pet-label">Descripción (opcional)</label>

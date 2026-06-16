@@ -12,14 +12,29 @@ L.Icon.Default.mergeOptions({
   shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
 });
 
-function MapaClickeable({ onMapClick, markerPos }) {
+function MapaClickeable({ onPositionChange, markerPos }) {
   useMapEvents({
     click(e) {
-      onMapClick(e.latlng);
+      onPositionChange(e.latlng);
     },
   });
 
-  return markerPos ? <Marker position={markerPos} /> : null;
+  if (!markerPos) {
+    return null;
+  }
+
+  return (
+    <Marker
+      position={markerPos}
+      draggable
+      eventHandlers={{
+        dragend(e) {
+          const { lat, lng } = e.target.getLatLng();
+          onPositionChange({ lat, lng });
+        },
+      }}
+    />
+  );
 }
 
 const ReportarAvistamiento = () => {
@@ -40,7 +55,7 @@ const ReportarAvistamiento = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleMapClick = (latlng) => {
+  const handlePositionChange = (latlng) => {
     setFormData((prev) => ({
       ...prev,
       latitud: latlng.lat,
@@ -50,8 +65,20 @@ const ReportarAvistamiento = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (formData.latitud == null || formData.longitud == null) {
+      alert('Debes seleccionar una ubicación en el mapa (clic o arrastrando el marcador).');
+      return;
+    }
     try {
-      await reportesService.reportarAvistamiento(formData);
+      await reportesService.reportarAvistamiento({
+        especie: formData.especie,
+        descripcionFisica: formData.descripcionFisica,
+        fotoUrl: formData.fotoUrl,
+        nombreReportador: formData.nombreReportador,
+        telefonoContacto: formData.telefonoContacto,
+        latitud: formData.latitud,
+        longitud: formData.longitud,
+      });
       setExito(true);
       setTimeout(() => {
         navigate('/');
@@ -165,7 +192,7 @@ const ReportarAvistamiento = () => {
               </div>
               <div>
                 <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Ubicación (haz clic en el mapa)
+                  Ubicación (clic en el mapa o arrastra el marcador)
                 </label>
                 <MapContainer
                   center={[-33.4569, -70.6812]}
@@ -177,8 +204,8 @@ const ReportarAvistamiento = () => {
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
                   <MapaClickeable
-                    onMapClick={handleMapClick}
-                    markerPos={formData.latitud && formData.longitud ? [formData.latitud, formData.longitud] : null}
+                    onPositionChange={handlePositionChange}
+                    markerPos={formData.latitud != null && formData.longitud != null ? [formData.latitud, formData.longitud] : null}
                   />
                 </MapContainer>
                 {formData.latitud && formData.longitud && (
