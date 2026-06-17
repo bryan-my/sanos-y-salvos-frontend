@@ -1,0 +1,259 @@
+.buzon-main {
+  padding-top: 120px;
+  padding-bottom: 60px;
+}
+
+.buzon-container {
+  max-width: 1000px;
+}
+
+.nav-link-accent {
+  color: #14b1ab;
+  font-weight: 500;
+}
+
+/* ── Tabs ─────────────────────────────────── */
+.buzon-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.buzon-tab {
+  padding: 12px 24px;
+  border: none;
+  background-color: transparent;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 8px 8px 0 0;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.buzon-tab--active {
+  background-color: #14b1ab;
+  color: white;
+}
+
+/* ── Mensajes de estado ───────────────────── */
+.buzon-message {
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  border-radius: 8px;
+}
+
+.buzon-message--ok {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.buzon-message--error {
+  background-color: #fee2e2;
+  color: #dc2626;
+}
+
+/* ── Loading / Empty ──────────────────────── */
+.buzon-loading {
+  text-align: center;
+  padding: 40px;
+}
+
+.buzon-empty {
+  text-align: center;
+  padding: 40px;
+  background-color: #f8fafc;
+  border-radius: 10px;
+}
+
+.buzon-empty__title {
+  color: #64748b;
+}
+
+.buzon-empty__text {
+  color: #94a3b8;
+  margin-top: 8px;
+}
+
+/* ── Grid de tarjetas ─────────────────────── */
+.buzon-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  gap: 20px;
+}
+
+/* ── Tarjeta individual ───────────────────── */
+.buzon-card {
+  padding: 24px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
+}
+
+.buzon-card--clickable {
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+
+.buzon-card--clickable:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* ── Cabecera: círculo de similitud + fecha ─ */
+.buzon-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.buzon-similarity {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  border: 3px solid;
+  flex-shrink: 0;
+}
+
+.buzon-similarity--high {
+  background-color: #f0fdf4;
+  border-color: #10b981;
+}
+
+.buzon-similarity--medium {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.buzon-similarity__value {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.buzon-similarity__value--high {
+  color: #10b981;
+}
+
+.buzon-similarity__value--medium {
+  color: #f59e0b;
+}
+
+.buzon-similarity__label {
+  font-size: 10px;
+  color: #64748b;
+  text-align: center;
+}
+
+.buzon-date {
+  flex: 1;
+  margin-left: 20px;
+}
+
+.buzon-date__label {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.buzon-date__value {
+  font-size: 14px;
+}
+
+/* ── Comparación Mascota / Avistamiento ───── */
+.buzon-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.buzon-comparison__pet {
+  padding: 12px;
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+.buzon-comparison__sighting {
+  padding: 12px;
+  background-color: #f0fdf4;
+  border-radius: 8px;
+}
+
+.buzon-comparison__title {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.buzon-comparison__title--pet {
+  color: #14b1ab;
+}
+
+.buzon-comparison__title--sighting {
+  color: #10b981;
+}
+
+.buzon-comparison__text {
+  font-size: 13px;
+}
+
+.buzon-comparison__text p {
+  margin-bottom: 4px;
+}
+
+.buzon-comparison__text p:last-child {
+  margin-bottom: 0;
+}
+
+/* ── Botones de acción ────────────────────── */
+.buzon-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.buzon-btn-accept {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.buzon-btn-accept:hover {
+  background-color: #059669;
+}
+
+.buzon-btn-reject {
+  flex: 1;
+  padding: 10px 16px;
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.buzon-btn-reject:hover {
+  background-color: #dc2626;
+}
+
+/* ── Aviso en tarjetas aceptadas ──────────── */
+.buzon-accepted-hint {
+  text-align: center;
+  padding: 8px;
+  background-color: #dcfce7;
+  color: #166534;
+  border-radius: 8px;
+  font-size: 13px;
+}

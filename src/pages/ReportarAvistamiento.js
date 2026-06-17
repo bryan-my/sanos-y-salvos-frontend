@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { reportesService } from '../services/api';
+import './ReportarAvistamiento.css';
 
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -19,9 +20,7 @@ function MapaClickeable({ onPositionChange, markerPos }) {
     },
   });
 
-  if (!markerPos) {
-    return null;
-  }
+  if (!markerPos) return null;
 
   return (
     <Marker
@@ -80,9 +79,7 @@ const ReportarAvistamiento = () => {
         longitud: formData.longitud,
       });
       setExito(true);
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      setTimeout(() => navigate('/'), 2000);
     } catch (error) {
       console.error('Error al reportar avistamiento:', error);
       alert('Error al enviar el reporte. Por favor, intenta nuevamente.');
@@ -93,11 +90,11 @@ const ReportarAvistamiento = () => {
     return (
       <div className="site">
         <main>
-          <section className="section" style={{ paddingTop: '150px', textAlign: 'center' }}>
+          <section className="section reporte-exito">
             <div className="container">
-              <h1 style={{ color: '#0d7377' }}>¡Reporte enviado exitosamente!</h1>
-              <p style={{ marginTop: '20px', fontSize: '18px' }}>Gracias por colaborar con la comunidad.</p>
-              <p style={{ marginTop: '10px' }}>Redirigiendo a la página principal...</p>
+              <h1 className="reporte-exito__title">¡Reporte enviado exitosamente!</h1>
+              <p className="reporte-exito__text">Gracias por colaborar con la comunidad.</p>
+              <p className="reporte-exito__redirect">Redirigiendo a la página principal...</p>
             </div>
           </section>
         </main>
@@ -118,82 +115,77 @@ const ReportarAvistamiento = () => {
           </nav>
         </div>
       </header>
-      <main style={{ paddingTop: '120px', paddingBottom: '60px' }}>
+
+      <main className="reporte-main">
         <section className="section">
-          <div className="container" style={{ maxWidth: '700px' }}>
+          <div className="container reporte-container">
             <div className="section-head">
               <h1>Reportar Mascota Vista</h1>
               <p>Completa el formulario para ayudar a encontrar a su dueño.</p>
             </div>
-            <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '24px', marginTop: '30px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Especie (ej: Perro, Gato)
-                </label>
+
+            <form onSubmit={handleSubmit} className="reporte-form">
+              <div className="reporte-field">
+                <label className="reporte-label">Especie (ej: Perro, Gato)</label>
                 <input
                   type="text"
                   name="especie"
                   value={formData.especie}
                   onChange={handleChange}
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }}
+                  className="reporte-input"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Descripción física
-                </label>
+
+              <div className="reporte-field">
+                <label className="reporte-label">Descripción física</label>
                 <textarea
                   name="descripcionFisica"
                   value={formData.descripcionFisica}
                   onChange={handleChange}
                   rows="4"
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }}
+                  className="reporte-input"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  URL de foto (opcional)
-                </label>
+
+              <div className="reporte-field">
+                <label className="reporte-label">URL de foto (opcional)</label>
                 <input
                   type="url"
                   name="fotoUrl"
                   value={formData.fotoUrl}
                   onChange={handleChange}
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }}
+                  className="reporte-input"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Tu nombre
-                </label>
+
+              <div className="reporte-field">
+                <label className="reporte-label">Tu nombre</label>
                 <input
                   type="text"
                   name="nombreReportador"
                   value={formData.nombreReportador}
                   onChange={handleChange}
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }}
+                  className="reporte-input"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Teléfono de contacto
-                </label>
+
+              <div className="reporte-field">
+                <label className="reporte-label">Teléfono de contacto</label>
                 <input
                   type="tel"
                   name="telefonoContacto"
                   value={formData.telefonoContacto}
                   onChange={handleChange}
                   required
-                  style={{ width: '100%', padding: '10px 12px', border: '1px solid #ddd', borderRadius: '8px', fontSize: '16px' }}
+                  className="reporte-input"
                 />
               </div>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
-                  Ubicación (clic en el mapa o arrastra el marcador)
-                </label>
+
+              <div className="reporte-field">
+                <label className="reporte-label">Ubicación (clic en el mapa o arrastra el marcador)</label>
                 <MapContainer
                   center={[-33.4569, -70.6812]}
                   zoom={13}
@@ -205,22 +197,23 @@ const ReportarAvistamiento = () => {
                   />
                   <MapaClickeable
                     onPositionChange={handlePositionChange}
-                    markerPos={formData.latitud != null && formData.longitud != null ? [formData.latitud, formData.longitud] : null}
+                    markerPos={
+                      formData.latitud != null && formData.longitud != null
+                        ? [formData.latitud, formData.longitud]
+                        : null
+                    }
                   />
                 </MapContainer>
                 {formData.latitud && formData.longitud && (
-                  <p style={{ marginTop: '8px', color: '#666' }}>
+                  <p className="reporte-coords">
                     Coordenadas seleccionadas: {formData.latitud.toFixed(4)}, {formData.longitud.toFixed(4)}
                   </p>
                 )}
               </div>
-              <div style={{ display: 'flex', gap: '16px', marginTop: '10px' }}>
-                <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
-                  Enviar Reporte
-                </button>
-                <Link to="/" className="btn btn-outline" style={{ flex: 1, textAlign: 'center', padding: '10px 16px' }}>
-                  Cancelar
-                </Link>
+
+              <div className="reporte-form-actions">
+                <button type="submit" className="btn btn-primary">Enviar Reporte</button>
+                <Link to="/" className="btn btn-outline">Cancelar</Link>
               </div>
             </form>
           </div>

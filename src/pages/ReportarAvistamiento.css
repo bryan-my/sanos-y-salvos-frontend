@@ -1,0 +1,87 @@
+.reporte-main {
+  padding-top: 120px;
+  padding-bottom: 60px;
+}
+
+.reporte-container {
+  max-width: 700px;
+}
+
+/* ── Pantalla de éxito ────────────────────── */
+.reporte-exito {
+  padding-top: 150px;
+  text-align: center;
+}
+
+.reporte-exito__title {
+  color: #0d7377;
+}
+
+.reporte-exito__text {
+  margin-top: 20px;
+  font-size: 18px;
+}
+
+.reporte-exito__redirect {
+  margin-top: 10px;
+}
+
+/* ── Formulario ───────────────────────────── */
+.reporte-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 30px;
+}
+
+.reporte-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.reporte-label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.reporte-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  box-sizing: border-box;
+}
+
+.reporte-input:focus {
+  outline: none;
+  border-color: #14b1ab;
+}
+
+/* ── Mapa ─────────────────────────────────── */
+.reporte-map {
+  height: 300px;
+  width: 100%;
+  border-radius: 10px;
+}
+
+.reporte-coords {
+  margin-top: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* ── Botones de acción ────────────────────── */
+.reporte-form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+}
+
+.reporte-form-actions .btn {
+  flex: 1;
+  text-align: center;
+}
